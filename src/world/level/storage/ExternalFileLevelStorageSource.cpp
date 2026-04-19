@@ -9,6 +9,10 @@
 #include <cstdio>
 #include <sys/types.h>
 
+#if defined(__HAIKU__)
+#include <sys/stat.h>
+#endif
+
 #ifdef __APPLE__
 #include "MoveFolder.h"
 #endif
@@ -66,7 +70,7 @@ void ExternalFileLevelStorageSource::addLevelSummaryIfExists(LevelSummaryList& d
 
 void ExternalFileLevelStorageSource::getLevelList(LevelSummaryList& dest)
 {
-#ifdef WIN32
+#if defined(WIN32)
 
 	WIN32_FIND_DATAA fileData;
 	HANDLE hFind;
@@ -83,8 +87,6 @@ void ExternalFileLevelStorageSource::getLevelList(LevelSummaryList& dest)
 		} while (FindNextFileA(hFind, &fileData));
 		FindClose(hFind);
 	} 
-
-
 #else
 	DIR *dp;
 	struct dirent *dirp;
@@ -94,10 +96,20 @@ void ExternalFileLevelStorageSource::getLevelList(LevelSummaryList& dest)
 	}
 
 	while ((dirp = readdir(dp)) != NULL) {
+#if defined(__HAIKU__)
+		struct stat st;
+		const auto fullPath = basePath + "/" + dirp->d_name;
+		if (!lstat(fullPath.c_str(), &st)) {
+			if(st.st_mode & S_IFDIR) {
+				addLevelSummaryIfExists(dest, dirp->d_name);
+			}
+		}
+#else
 		if (dirp->d_type == DT_DIR)
 		{
 			addLevelSummaryIfExists(dest, dirp->d_name);
 		}
+#endif
 	}
 	closedir(dp);
 #endif

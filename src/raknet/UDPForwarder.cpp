@@ -1,5 +1,9 @@
 #include "UDPForwarder.h"
 
+#if defined(__HAIKU__)
+#include <sys/select.h>
+#endif
+
 #if _RAKNET_SUPPORT_UDPForwarder==1
 
 #include "GetTime.h"

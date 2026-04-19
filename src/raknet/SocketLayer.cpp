@@ -42,11 +42,10 @@ SocketLayerOverride *SocketLayer::slo=0;
 
 #endif
 
-
-
-
-
-
+#if defined(__HAIKU__)
+#include <sys/types.h>
+#include <ifaddrs.h>
+#endif
 
 
 
@@ -1435,6 +1434,24 @@ RakNet::RakString SocketLayer::GetSubNetForSocketAndIp(SOCKET inSock, RakNet::Ra
 			return netMaskString;
 		}
 	}
+	return "";
+#elif defined(__HAIKU__)
+	struct ifaddrs *ifap, *ifa;
+	getifaddrs (&ifap);
+	for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
+		if (ifa->ifa_addr && ifa->ifa_addr->sa_family==AF_INET) {
+			sockaddr_in* sa = (sockaddr_in*)ifa->ifa_addr;
+			char* ip_addr = inet_ntoa(sa->sin_addr);
+			if (inIpString == ip_addr) {
+				sockaddr_in* sa = (sockaddr_in*)ifa->ifa_netmask;
+				char* netmask = inet_ntoa(sa->sin_addr);
+
+				freeifaddrs(ifap);
+				return netmask;
+			}
+		}
+	}
+	freeifaddrs(ifap);
 	return "";
 #else
 

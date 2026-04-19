@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.21)
 project(MinecraftPE)
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Haiku")
+set(HAIKU, 1)
+endif()
+
 include(cmake/CPM.cmake)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -26,6 +30,10 @@ if (${PLATFORM} STREQUAL "Desktop")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++ -static-libgcc")
     endif()
 
+    if(HAIKU)
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++ -static-libgcc -static")
+    endif()
+
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-c++11-narrowing -Wno-narrowing -Wno-invalid-source-encoding -Wno-reserved-user-defined-literal")
     endif()
@@ -34,6 +42,10 @@ if (${PLATFORM} STREQUAL "Desktop")
         add_definitions(-D_CRT_SECURE_NO_WARNINGS)
         include_directories(misc/windows)
         set(EXTRA_LIBS ws2_32 winhttp)
+    elseif(HAIKU)
+        find_library(pthread NAMES pthread)
+        find_library(network NAMES network)
+        set(EXTRA_LIBS pthread m network)
     elseif(UNIX)
         find_library(pthread NAMES pthread)
         set(EXTRA_LIBS pthread m)
@@ -44,72 +56,87 @@ elseif (${PLATFORM} STREQUAL "Web")
     set(EXTRA_LIBS "idbfs.js")
 endif()
 
-# I totally shocked
-if(${PLATFORM} MATCHES "Web")
-    set(PNG_LIB png)
-    set(AL_LIBTYPE "STATIC")
+if(!HAIKU)
+    if(${PLATFORM} MATCHES "Web")
+        set(PNG_LIB png)
+        set(ZLIB_LIB zlib)
+        set(AL_LIBTYPE "STATIC")
 
-    add_library(zlib INTERFACE IMPORTED)
-    set_target_properties(zlib PROPERTIES
-        INTERFACE_LINK_OPTIONS "-sUSE_ZLIB=1"
-    )
+        add_library(zlib INTERFACE IMPORTED)
+        set_target_properties(zlib PROPERTIES
+            INTERFACE_LINK_OPTIONS "-sUSE_ZLIB=1"
+        )
 
-    add_library(png INTERFACE IMPORTED)
-    set_target_properties(png PROPERTIES
-        INTERFACE_COMPILE_OPTIONS "-sUSE_LIBPNG=1" 
-        INTERFACE_LINK_OPTIONS "-sUSE_LIBPNG=1"
-    )
+        add_library(png INTERFACE IMPORTED)
+        set_target_properties(png PROPERTIES
+            INTERFACE_COMPILE_OPTIONS "-sUSE_LIBPNG=1"
+            INTERFACE_LINK_OPTIONS "-sUSE_LIBPNG=1"
+        )
 
-    add_library(glfw INTERFACE IMPORTED)
-    set_target_properties(glfw PROPERTIES
-        INTERFACE_LINK_OPTIONS "-sUSE_GLFW=3"
+        add_library(glfw INTERFACE IMPORTED)
+        set_target_properties(glfw PROPERTIES
+            INTERFACE_LINK_OPTIONS "-sUSE_GLFW=3"
+        )
+
+    else()
+        set(PNG_LIB png_shared)
+        set(ZLIB_LIB zlib)
+        set(AL_LIB "OpenAL::OpenAL")
+        set(AL_LIBTYPE "SHARED")
+
+        CPMAddPackage(
+            NAME "zlib"
+            GIT_REPOSITORY "https://github.com/madler/zlib"
+            GIT_TAG "v1.3.2"
+        )
+
+        CPMAddPackage(
+            NAME "libpng"
+            GIT_REPOSITORY "https://github.com/pnggroup/libpng.git"
+            GIT_TAG "v1.6.55"
+            OPTIONS
+                "ZLIB_ROOT ${zlib_SOURCE_DIR}"
+                "ZLIB_INCLUDE_DIRS ${zlib_SOURCE_DIR}"
+                "PNG_TOOLS OFF"
+                "PNG_TESTS OFF"
+        )
+        CPMAddPackage(
+            NAME "glfw"
+            GIT_REPOSITORY "https://github.com/glfw/glfw.git"
+            GIT_TAG "3.4"
+            EXCLUDE_FROM_ALL TRUE
+            OPTIONS
+                "GLFW_BUILD_EXAMPLES OFF"
+                "GLFW_BUILD_TESTS OFF"
+                "GLFW_BUILD_DOCS OFF"
+        )
+
+    endif()
+
+    CPMAddPackage(
+        NAME "openal"
+        GIT_REPOSITORY "https://github.com/kcat/openal-soft.git"
+        GIT_TAG "1.25.1"
+        OPTIONS
+            "ALSOFT_EXAMPLES OFF"
+            "ALSOFT_TESTS OFF"
+            "ALSOFT_UTILS OFF"
+            "LIBTYPE ${AL_LIBTYPE}"
+            "ALSOFT_ENABLE_MODULES OFF"
+            "ALSOFT_STATIC_STDCXX ON"
+            "ALSOFT_STATIC_LIBGCC ON"
     )
 else()
-    set(PNG_LIB png_shared)
-    set(AL_LIBTYPE "SHARED")
+    # alot of these have haikuports specific versions,
+    find_library(glfw NAMES glfw)
+    find_library(openal NAMES openal)
+    find_library(png NAMES png)
+    find_library(zlib NAMES zlib)
 
-    CPMAddPackage(
-        NAME "zlib"
-        GIT_REPOSITORY "https://github.com/madler/zlib"
-        GIT_TAG "v1.3.2"
-    )
-
-    CPMAddPackage(
-        NAME "libpng"
-        GIT_REPOSITORY "https://github.com/pnggroup/libpng.git"
-        GIT_TAG "v1.6.55"
-        OPTIONS
-            "ZLIB_ROOT ${zlib_SOURCE_DIR}"
-            "ZLIB_INCLUDE_DIRS ${zlib_SOURCE_DIR}"
-            "PNG_TOOLS OFF"
-            "PNG_TESTS OFF"
-    )
-
-    CPMAddPackage(
-        NAME "glfw"
-        GIT_REPOSITORY "https://github.com/glfw/glfw.git"
-        GIT_TAG "3.4"
-        EXCLUDE_FROM_ALL TRUE
-        OPTIONS
-            "GLFW_BUILD_EXAMPLES OFF"
-            "GLFW_BUILD_TESTS OFF"
-            "GLFW_BUILD_DOCS OFF"
-    )
+    set(PNG_LIB png)
+    set(ZLIB_LIB z)
+    set(AL_LIB openal)
 endif()
-
-CPMAddPackage(
-    NAME "openal"
-    GIT_REPOSITORY "https://github.com/kcat/openal-soft.git"
-    GIT_TAG "1.25.1"
-    OPTIONS
-        "ALSOFT_EXAMPLES OFF"
-        "ALSOFT_TESTS OFF"
-        "ALSOFT_UTILS OFF"
-        "LIBTYPE ${AL_LIBTYPE}"
-        "ALSOFT_ENABLE_MODULES OFF"
-        "ALSOFT_STATIC_STDCXX ON"
-        "ALSOFT_STATIC_LIBGCC ON"
-)
 
 # TODO: Clear this paths with *
 file(GLOB SERVER_SOURCES
@@ -316,7 +343,8 @@ if(UNIX)
         "project/lib_projects/raknet/jni/RaknetSources"
     )
 
-    target_link_libraries("${PROJECT_NAME}-server" ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries("${PROJECT_NAME}-server" ${EXTRA_LIBS})
+
 endif()
 
 add_executable(${PROJECT_NAME} ${CLIENT_SOURCES})
@@ -372,11 +400,16 @@ if(${PLATFORM} MATCHES "Web")
     endif()
 
     target_compile_definitions(${PROJECT_NAME} PUBLIC "__EMSCRIPTEN__" "NO_SOUND" "NO_NETWORK")
+else()
+    target_compile_options(${PROJECT_NAME} PUBLIC
+        "-O3"
+    )
 endif()
 
 # Client
 target_compile_definitions(${PROJECT_NAME} PUBLIC "OPENGL_ES" "NO_EGL" ${PLATFORM})
-target_link_libraries(${PROJECT_NAME} zlib ${PNG_LIB} OpenAL::OpenAL glfw ${EXTRA_LIBS})
+
+target_link_libraries(${PROJECT_NAME} ${ZLIB_LIB} ${PNG_LIB} ${AL_LIB} glfw ${EXTRA_LIBS})
 
 if (OpenSSL_FOUND)
     target_link_libraries(${PROJECT_NAME} OpenSSL::SSL OpenSSL::Crypto)
