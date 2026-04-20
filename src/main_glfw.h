@@ -191,8 +191,13 @@ int main(void) {
 	App* app = new MAIN_CLASS();
 
 	g_app = app;
+#ifdef __HAIKU__
+	((MAIN_CLASS*)g_app)->externalStoragePath = "/system/settings/minecraftpe";
+	((MAIN_CLASS*)g_app)->externalCacheStoragePath = "/system/settings/minecraftpe";
+#else
 	((MAIN_CLASS*)g_app)->externalStoragePath = ".";
 	((MAIN_CLASS*)g_app)->externalCacheStoragePath = ".";
+#endif
 	g_app->init(appContext);
 	g_app->setSize(appContext.platform->getScreenWidth(), appContext.platform->getScreenHeight());
 

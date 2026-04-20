@@ -18,6 +18,8 @@ OptionsFile::OptionsFile() {
 	settingsPath = "options.txt";
 #elif defined(__EMSCRIPTEN__)
     settingsPath = "/games/com.mojang/options.txt";
+#elif defined(__HAIKU__)
+    settingsPath = "/system/settings/minecraftpe/options.txt";
 #else
 	settingsPath = "options.txt";
 #endif

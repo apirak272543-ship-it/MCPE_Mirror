@@ -25,12 +25,19 @@
 			&m_threadID        // pointer to receive thread ID
 		);
 	#endif
-	#if defined(__linux__) || defined(ANDROID) || defined(__APPLE__) || defined(POSIX) || defined(__EMSCRIPTEN__) || defined(__HAIKU__)
+	#if defined(__linux__) || defined(ANDROID) || defined(__APPLE__) || defined(POSIX) || defined(__EMSCRIPTEN__)
 		mp_threadFunc = (pthread_fn)threadFunc;
 
 		pthread_attr_init(&m_attributes);
 		pthread_attr_setdetachstate( &m_attributes, PTHREAD_CREATE_DETACHED );
 		/*int error =*/ pthread_create(&m_thread, &m_attributes, mp_threadFunc, threadParam);
+	#endif
+	#if defined(__HAIKU__)
+
+	mp_threadFunc = (thread_func)threadFunc;
+	m_thread = spawn_thread(mp_threadFunc, "CThread", 10, threadParam);
+	int res = resume_thread(m_thread);
+
 	#endif
 	#ifdef MACOSX
 		mp_threadFunc = (TaskProc) threadFunc;
@@ -53,8 +60,11 @@
 		#ifdef WIN32
 			Sleep( millis );
 		#endif
-		#if defined(LINUX) || defined(ANDROID) || defined(__APPLE__) || defined(POSIX) || defined(__HAIKU__)
+		#if defined(LINUX) || defined(ANDROID) || defined(__APPLE__) || defined(POSIX)
 			usleep(millis * 1000);
+		#endif
+		#if defined(__HAIKU__)
+			snooze((bigtime_t)(millis * 1000));
 		#endif
 	}
 
@@ -63,10 +73,13 @@
 	#ifdef WIN32
 		TerminateThread(m_threadHandle, 0);
 	#endif
-	#if defined(LINUX) || defined(ANDROID) || defined(__APPLE__) || defined(POSIX) || defined(__HAIKU__)
+	#if defined(LINUX) || defined(ANDROID) || defined(__APPLE__) || defined(POSIX)
 		// Thread was created detached; pthread_join on a detached thread is undefined
 		// and causes SIGABRT when the pthread_t is no longer valid.
 		pthread_attr_destroy(&m_attributes);
+	#endif
+	#if defined(__HAIKU__)
+		kill_thread(m_thread);
 	#endif
 	}
 

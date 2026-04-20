@@ -1,0 +1,27 @@
+name                  minecraftpe
+version               0.6.1-1
+architecture          x86_64
+summary               "Minecraft Pocket Edition"
+description           "A port of minecraft pocket edition to Haiku"
+packager              "Li <li@silica.codes>"
+vendor                "Mojang"
+copyrights {
+      "Copyright (C) 2026 by Mojang"
+}
+licenses {
+      "MIT"
+}
+provides {
+      minecraftpe = 0.6.1-1
+      app:minecraftpe = 0.6.1-1
+}
+requires {
+	glfw >= 3.3.7-1
+	openal >= 1.21.1-5
+}
+global-writable-files {
+      "settings/minecraftpe" directory keep-old
+}
+urls {
+      "https://gitea.sffempire.ru/Kolyah35/minecraft-pe-0.6.1/"
+}

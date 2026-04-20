@@ -20,6 +20,7 @@
 #include <shellapi.h>
 #endif
 
+
 #ifdef __EMSCRIPTEN__
 	#include <emscripten/html5.h>
 #endif
@@ -31,12 +32,19 @@ static void png_funcReadFile(png_structp pngPtr, png_bytep data, png_size_t leng
 class AppPlatform_glfw: public AppPlatform
 {
 public:
-    AppPlatform_glfw()
+
+#ifdef __HAIKU__
+	std::string game_directory = "/system/data/minecraftpe/";
+#else
+	std::string game_directory = "";
+#endif
+
+	AppPlatform_glfw()
     {
     }
 
 	BinaryBlob readAssetFile(const std::string& filename) override {
-		FILE* fp = fopen(("data/" + filename).c_str(), "r");
+		FILE* fp = fopen((game_directory + "data/" + filename).c_str(), "r");
 		if (!fp)
 			return BinaryBlob();
 
@@ -73,7 +81,7 @@ public:
 
 		TextureData out;
 
-		std::string filename = textureFolder? "data/images/" + filename_
+		std::string filename = textureFolder? (game_directory + "data/images/") + filename_
 								: filename_;
 		std::ifstream source(filename.c_str(), std::ios::binary);
 
