@@ -19,6 +19,8 @@ using namespace RakNet;
 
 
 
+#elif defined(__HAIKU__)
+#include <kernel/OS.h>
 #else
 #include <pthread.h>
 #endif
@@ -92,10 +94,10 @@ int RakThread::Create( void* start_address( void* ), void *arglist, int priority
 
 
 
-
-
-
-
+#elif defined(__HAIKU__)
+	thread_id threadHandle = spawn_thread((thread_func)start_address, "RakThread", priority, arglist);
+	int res = resume_thread(threadHandle);
+	return res == B_OK ? 0 : 1;
 #else
 	pthread_t threadHandle;
 	// Create thread linux

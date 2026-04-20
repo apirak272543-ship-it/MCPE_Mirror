@@ -1665,7 +1665,7 @@ void GetMyIP_Win32( SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS] )
 	}
 }
 // #else
-/*
+
 void GetMyIP_Linux( SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS] )
 {
 	struct ifaddrs *ifaddr, *ifa;
@@ -1716,7 +1716,7 @@ void GetMyIP_Linux( SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_IDS] )
 
 	freeifaddrs(ifaddr);
 }
-*/
+
 
 
 
@@ -1724,10 +1724,10 @@ void SocketLayer::GetMyIP( SystemAddress addresses[MAXIMUM_NUMBER_OF_INTERNAL_ID
 {
 
 
-
-
 #if   defined(_WIN32)
 	GetMyIP_Win32(addresses);
+#elif defined(__HAIKU__)
+	GetMyIP_Linux(addresses);
 #else
 //	GetMyIP_Linux(addresses);
 	GetMyIP_Win32(addresses);

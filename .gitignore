@@ -4,6 +4,7 @@ out/
 bin/
 lib/
 build-apk/
+build-haiku/
 cmake-build-*/
 CMakeFiles/
 CMakeCache.txt

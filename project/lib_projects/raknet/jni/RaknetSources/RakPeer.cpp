@@ -351,7 +351,8 @@ StartupResult RakPeer::Startup( unsigned short maxConnections, SocketDescriptor 
 #if   defined(_WIN32)
 		threadPriority=0;
 
-
+#elif defined(__HAIKU__)
+		threadPriority=40;
 #else
 		threadPriority=1000;
 #endif
