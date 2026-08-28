@@ -11,26 +11,16 @@
     * { box-sizing: border-box; }
     html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #080808; overscroll-behavior: none; }
     body { touch-action: none; user-select: none; -webkit-user-select: none; }
-    #game-viewport {
-      position: fixed;
-      top: env(safe-area-inset-top, 0px);
-      right: env(safe-area-inset-right, 0px);
-      bottom: env(safe-area-inset-bottom, 0px);
-      left: env(safe-area-inset-left, 0px);
-      overflow: hidden;
-      background: #080808;
-    }
-    #canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+    /* The engine surface must remain the complete physical viewport. Do not inset it. */
+    #game-viewport { position: fixed; inset: 0; overflow: hidden; background: #080808; }
+    #canvas { position: absolute; inset: 0; width: 100vw; height: 100vh; display: block; touch-action: none; }
     #orientation-gate {
       display: none;
       position: fixed;
       z-index: 20;
-      top: env(safe-area-inset-top, 0px);
-      right: env(safe-area-inset-right, 0px);
-      bottom: env(safe-area-inset-bottom, 0px);
-      left: env(safe-area-inset-left, 0px);
+      inset: 0;
       place-items: center;
-      padding: 24px;
+      padding: max(24px, env(safe-area-inset-top, 0px)) max(24px, env(safe-area-inset-right, 0px)) max(24px, env(safe-area-inset-bottom, 0px)) max(24px, env(safe-area-inset-left, 0px));
       text-align: center;
       background: #10182a;
       color: #fff;
@@ -52,9 +42,8 @@
     };
     function resizeCanvas() {
       var canvas = Module.canvas;
-      var viewport = document.getElementById('game-viewport');
-      var width = Math.max(1, viewport.clientWidth);
-      var height = Math.max(1, viewport.clientHeight);
+      var width = Math.max(1, window.innerWidth);
+      var height = Math.max(1, window.innerHeight);
       if (canvas.width !== width || canvas.height !== height) {
         canvas.width = width;
         canvas.height = height;
