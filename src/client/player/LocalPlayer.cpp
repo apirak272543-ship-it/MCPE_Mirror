@@ -575,6 +575,26 @@ void LocalPlayer::closeContainer() {
 
 //@Override
 void LocalPlayer::move(float xa, float ya, float za) {
+    // Each world has a 500-block playable radius around its own spawn.
+    // Keep Y untouched so the existing world height and bottom limits remain active.
+    if (minecraft && minecraft->level && minecraft->level->getLevelData()) {
+        const float centerX = minecraft->level->getLevelData()->getXSpawn() + 0.5f;
+        const float centerZ = minecraft->level->getLevelData()->getZSpawn() + 0.5f;
+        const float nextX = x + xa;
+        const float nextZ = z + za;
+        const float dx = nextX - centerX;
+        const float dz = nextZ - centerZ;
+        const float radius = 500.0f;
+        const float distanceSquared = dx * dx + dz * dz;
+        if (distanceSquared > radius * radius) {
+            const float distance = Mth::sqrt(distanceSquared);
+            const float safeDistance = Mth::Max(distance, 0.0001f);
+            const float boundaryX = centerX + (dx / safeDistance) * radius;
+            const float boundaryZ = centerZ + (dz / safeDistance) * radius;
+            xa = boundaryX - x;
+            za = boundaryZ - z;
+        }
+    }
     //@note: why is this == minecraft->player needed?
     if (this == minecraft->player  && minecraft->options.getBooleanValue(OPTIONS_IS_FLYING)) {
         noPhysics = true;
