@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0a0e18">
+  <meta name="theme-color" content="#080b13">
   <title>โลกของเรา — ล็อบบี้</title>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -15,28 +15,17 @@
       <button class="icon-button" data-panel="settings" aria-label="เปิดการตั้งค่า">⚙</button>
     </header>
 
-    <section class="hero-layer" aria-labelledby="lobby-title">
-      <div class="hero-copy"><p class="eyebrow">ศูนย์บัญชาการระหว่างโลก</p><h1 id="lobby-title">เลือกเส้นทาง<br><em>ที่คุณจะออกเดินทาง</em></h1><p class="hero-text">ทุกโลกอยู่ในเกมเดียวกัน ไอเทมและความทรงจำของคุณเดินทางข้ามโลกได้ เมื่อเนื้อเรื่องเปิดทางให้</p><button class="primary-action" data-action="enter-world">เข้าสู่โลกที่เลือก <span>→</span></button></div>
-      <div class="world-orb" aria-hidden="true"><div class="orb-ring ring-one"></div><div class="orb-ring ring-two"></div><div class="orb-core"></div><span>WORLD<br>LINK</span></div>
+    <section class="character-stage" aria-labelledby="character-title">
+      <div class="stage-copy"><p class="eyebrow">ตัวละครของคุณ</p><h1 id="character-title">ผู้เดินทาง<br><em>ระหว่างโลก</em></h1><p class="hero-text">ชุดและของที่ถืออยู่จะติดตัวคุณไปในทุกโลกที่ได้รับอนุญาต</p><div class="stage-actions"><button class="primary-action" data-action="enter-world">เข้าเล่นต่อ <span>→</span></button><button class="ghost-action" data-panel="character">ปรับแต่งตัวละคร</button></div></div>
+      <div class="character-view" aria-label="ตัวละครผู้เล่น"><div class="character-aura"></div><div class="character-silhouette"><div class="char-head"></div><div class="char-body"></div><div class="char-cape"></div><div class="char-staff"></div></div><span class="character-label">ผู้บุกเบิก</span></div>
+      <aside class="equipment-card"><p class="eyebrow">กำลังสวมใส่</p><div class="equipment-row"><span class="equip-icon">◈</span><span><b>เข็มทิศเอเธอร์</b><small>อุปกรณ์หลัก · ใช้เปิดทางเชื่อมโลก</small></span></div><div class="equipment-row"><span class="equip-icon gold">✦</span><span><b>เสื้อคลุมผู้บุกเบิก</b><small>ชุดเดินทาง · ป้องกันสภาพอากาศ</small></span></div><div class="equipment-row"><span class="equip-icon green">◇</span><span><b>เศษแก่นเถ้าดำ x12</b><small>ของติดตัว · ใช้ได้ตาม access ของโลก</small></span></div></aside>
     </section>
 
-    <section class="world-layer panel-layer" id="world-panel">
-      <div class="section-heading"><div><p class="eyebrow">แผนที่ของเรา</p><h2>โลกที่พร้อมออกเดินทาง</h2></div><button class="text-button" data-panel="maps">ดูทั้งหมด</button></div>
-      <div id="world-list" class="world-list" aria-live="polite"></div>
-    </section>
-
-    <section class="content-layer panel-layer" id="content-panel">
-      <div class="section-heading"><div><p class="eyebrow">ของที่เดินทางไปกับคุณ</p><h2>คลังส่วนกลาง</h2></div><button class="text-button" data-panel="inventory">เปิดคลัง</button></div>
-      <div class="inventory-strip" id="inventory-strip"></div>
-    </section>
-
-    <section class="story-layer panel-layer">
-      <div class="section-heading"><div><p class="eyebrow">เรื่องราวล่าสุด</p><h2>สัญญาณจากอีกฟากโลก</h2></div><button class="text-button" data-panel="story">อ่านต่อ</button></div>
-      <div class="story-card"><div class="story-mark">✦</div><div><strong>เศษแก่นเถ้าดำตอบสนองต่อเข็มทิศ</strong><p>ประตูนรกเถ้าดำเริ่มเปิดสัญญาณ ผู้เฝ้าประตูต้องการพบผู้ถือครองแก่นพลัง</p></div><span class="story-time">วันนี้</span></div>
-    </section>
+    <section class="next-step"><div><p class="eyebrow">ภารกิจปัจจุบัน</p><strong>ตามหาเสียงเรียกจากประตูนรกเถ้าดำ</strong><span>เปิดแผนที่เพื่อดูเส้นทางและเงื่อนไขการเข้าโลก</span></div><button class="round-arrow" data-panel="maps">→</button></section>
 
     <nav class="bottom-layer" aria-label="เมนูหลัก"><button class="nav-item active" data-panel="home"><span>⌂</span>หน้าหลัก</button><button class="nav-item" data-panel="maps"><span>◇</span>แผนที่</button><button class="nav-item" data-panel="inventory"><span>▣</span>คลังของ</button><button class="nav-item" data-panel="quests"><span>✦</span>ภารกิจ</button><button class="nav-item" data-panel="profile"><span>◉</span>ตัวละคร</button></nav>
   </main>
+  <section id="drawer" class="drawer" aria-hidden="true"><div class="drawer-backdrop" data-close-drawer></div><div class="drawer-sheet"><div class="drawer-handle"></div><div class="drawer-head"><div><p class="eyebrow" id="drawer-eyebrow">เมนู</p><h2 id="drawer-title">แผนที่ของเรา</h2></div><button class="close-button" data-close-drawer aria-label="ปิดหน้าต่าง">×</button></div><div id="drawer-content"></div></div></section>
   <div id="toast" role="status" aria-live="polite"></div>
   <script src="app.js"></script>
 </body>
