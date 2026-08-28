@@ -31,7 +31,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y ninja-build
 
       - name: Configure Web build
-        run: emcmake cmake -S . -B build -G Ninja -DPLATFORM=Web -DCMAKE_BUILD_TYPE=Release
+        run: emcmake cmake -S . -B build -G Ninja -DPLATFORM=Web -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_SCAN_FOR_MODULES=OFF
 
       - name: Compile WebAssembly game
         run: cmake --build build --target MinecraftPE --parallel 2
