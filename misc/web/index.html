@@ -6,118 +6,48 @@
   <meta name="theme-color" content="#080808">
   <title>MCPE 0.6.1</title>
   <style>
-    :root { color-scheme: dark; font-family: system-ui, sans-serif; }
+    :root { color-scheme: dark; }
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #080808; overscroll-behavior: none; }
     body { touch-action: none; user-select: none; -webkit-user-select: none; }
     #canvas { width: 100vw; height: 100vh; height: 100dvh; display: block; touch-action: none; }
-    #touch-ui { display: none; position: fixed; inset: 0; z-index: 10; pointer-events: none; padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); }
-    .touch-cluster { pointer-events: auto; position: absolute; bottom: max(18px, env(safe-area-inset-bottom)); }
-    #move-pad { left: max(18px, env(safe-area-inset-left)); width: min(34vw, 150px); height: min(34vw, 150px); border: 2px solid rgba(255,255,255,.42); border-radius: 50%; background: rgba(0,0,0,.38); box-shadow: inset 0 0 0 12px rgba(255,255,255,.06), 0 6px 24px rgba(0,0,0,.32); }
-    #move-pad::before, #move-pad::after { content: ''; position: absolute; background: rgba(255,255,255,.16); }
-    #move-pad::before { width: 2px; height: 70%; left: calc(50% - 1px); top: 15%; }
-    #move-pad::after { height: 2px; width: 70%; top: calc(50% - 1px); left: 15%; }
-    #stick { position: absolute; left: 50%; top: 50%; width: 34%; height: 34%; transform: translate(-50%, -50%); border-radius: 50%; background: rgba(255,255,255,.72); border: 3px solid rgba(0,0,0,.4); box-shadow: 0 3px 8px rgba(0,0,0,.55); }
-    #actions { right: max(18px, env(safe-area-inset-right)); display: grid; grid-template-columns: repeat(2, minmax(58px, 76px)); gap: 10px; align-items: end; }
-    .touch-button { min-width: 64px; min-height: 58px; border: 2px solid rgba(255,255,255,.5); border-radius: 18px; background: rgba(24,24,24,.78); color: #fff; font-weight: 800; font-size: clamp(12px, 3.5vw, 16px); text-shadow: 0 1px 2px #000; box-shadow: 0 5px 14px rgba(0,0,0,.4); touch-action: none; }
-    .touch-button:active, .touch-button.active { background: rgba(92,139,54,.92); transform: scale(.96); }
-    #attack { grid-column: 2; grid-row: 1 / span 2; min-height: 126px; border-radius: 50%; background: rgba(137,45,37,.84); }
-    #jump { grid-column: 1; grid-row: 1; }
-    #sneak { grid-column: 1; grid-row: 2; }
-    #touch-hint { position: absolute; top: max(12px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); padding: 7px 12px; border-radius: 999px; color: rgba(255,255,255,.82); background: rgba(0,0,0,.46); font-size: 12px; pointer-events: none; }
-    @media (pointer: coarse), (max-width: 900px) {
-      #touch-ui { display: block; }
-    }
-    @media (orientation: portrait) and (pointer: coarse) {
-      #touch-hint::after { content: ' · Rotate to landscape for the best view'; }
-    }
+    #orientation-gate { display: none; position: fixed; z-index: 20; inset: 0; place-items: center; padding: 24px; text-align: center; background: #111; color: #fff; font: 700 18px/1.45 system-ui, sans-serif; }
+    #orientation-gate span { display: block; max-width: 320px; }
+    @media (orientation: portrait) and (pointer: coarse) { #orientation-gate.show { display: grid; } }
   </style>
 </head>
 <body>
   <canvas id="canvas" tabindex="0"></canvas>
-  <div id="touch-ui" aria-label="Touch controls">
-    <div id="touch-hint">Touch controls · drag left pad to move</div>
-    <div id="move-pad" class="touch-cluster" aria-label="Movement joystick"><span id="stick"></span></div>
-    <div id="actions" class="touch-cluster">
-      <button id="jump" class="touch-button" type="button">JUMP</button>
-      <button id="sneak" class="touch-button" type="button">SNEAK</button>
-      <button id="attack" class="touch-button" type="button">HIT</button>
-      <button id="use" class="touch-button" type="button">USE</button>
-    </div>
-  </div>
+  <div id="orientation-gate" aria-live="polite"><span>กรุณาหมุนโทรศัพท์เป็นแนวนอนเพื่อเล่นเกม</span></div>
   <script>
     var Module = {
       canvas: document.getElementById('canvas'),
-      onRuntimeInitialized: function () { resizeCanvas(); document.getElementById('canvas').focus(); }
+      onRuntimeInitialized: function () { resizeCanvas(); Module.canvas.focus(); }
     };
-
     function resizeCanvas() {
       var canvas = Module.canvas;
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
-    window.addEventListener('resize', resizeCanvas, { passive: true });
-    window.addEventListener('orientationchange', function () { setTimeout(resizeCanvas, 80); }, { passive: true });
+    function isGameplay() { return window.__mcpeGameplay === true; }
+    function isPortrait() { return window.innerHeight > window.innerWidth; }
+    function updateMobileShell() {
+      var gameplay = isGameplay();
+      var portrait = isPortrait();
+      document.getElementById('orientation-gate').classList.toggle('show', gameplay && portrait);
+      if (gameplay && !portrait && !document.fullscreenElement && Module.canvas.requestFullscreen) {
+        Module.canvas.requestFullscreen().then(function () {
+          if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {});
+        }).catch(function () {});
+      }
+    }
+    window.addEventListener('resize', function () { resizeCanvas(); updateMobileShell(); }, { passive: true });
+    window.addEventListener('orientationchange', function () { setTimeout(function () { resizeCanvas(); updateMobileShell(); }, 100); }, { passive: true });
+    document.addEventListener('fullscreenchange', updateMobileShell);
     window.addEventListener('contextmenu', function (event) { event.preventDefault(); });
     window.addEventListener('gesturestart', function (event) { event.preventDefault(); });
-    window.addEventListener('beforeunload', function () {
-      if (typeof FS !== 'undefined' && FS.syncfs) FS.syncfs(true, function () {});
-    });
-
-    (function setupTouchControls() {
-      var pressed = new Set();
-      function keyEvent(type, key) {
-        var code = key === ' ' ? 'Space' : key === 'Shift' ? 'ShiftLeft' : 'Key' + key.toUpperCase();
-        var event = new KeyboardEvent(type, { key: key, code: code, bubbles: true, cancelable: true });
-        Module.canvas.dispatchEvent(event);
-      }
-      function setKey(key, down) {
-        if (down && !pressed.has(key)) { pressed.add(key); keyEvent('keydown', key); }
-        if (!down && pressed.has(key)) { pressed.delete(key); keyEvent('keyup', key); }
-      }
-      function bindHold(id, key) {
-        var button = document.getElementById(id);
-        var down = function (event) { event.preventDefault(); button.classList.add('active'); button.setPointerCapture && button.setPointerCapture(event.pointerId); setKey(key, true); };
-        var up = function (event) { event.preventDefault(); button.classList.remove('active'); setKey(key, false); };
-        button.addEventListener('pointerdown', down);
-        button.addEventListener('pointerup', up);
-        button.addEventListener('pointercancel', up);
-        button.addEventListener('pointerleave', function (event) { if (event.buttons === 0) up(event); });
-      }
-      bindHold('jump', ' ');
-      bindHold('sneak', 'Shift');
-      bindHold('use', 'e');
-      (function bindMouseAttack() {
-        var button = document.getElementById('attack');
-        function mouseEvent(type) {
-          var rect = Module.canvas.getBoundingClientRect();
-          Module.canvas.dispatchEvent(new MouseEvent(type, { button: 0, buttons: type === 'mousedown' ? 1 : 0, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2, bubbles: true, cancelable: true }));
-        }
-        function down(event) { event.preventDefault(); button.classList.add('active'); button.setPointerCapture && button.setPointerCapture(event.pointerId); mouseEvent('mousedown'); }
-        function up(event) { event.preventDefault(); button.classList.remove('active'); mouseEvent('mouseup'); }
-        button.addEventListener('pointerdown', down); button.addEventListener('pointerup', up); button.addEventListener('pointercancel', up);
-      })();
-
-      var pad = document.getElementById('move-pad');
-      var stick = document.getElementById('stick');
-      var pointerId = null;
-      function updateMove(event) {
-        var rect = pad.getBoundingClientRect();
-        var x = (event.clientX - (rect.left + rect.width / 2)) / (rect.width * .38);
-        var y = (event.clientY - (rect.top + rect.height / 2)) / (rect.height * .38);
-        x = Math.max(-1, Math.min(1, x)); y = Math.max(-1, Math.min(1, y));
-        stick.style.transform = 'translate(calc(-50% + ' + (x * rect.width * .38) + 'px), calc(-50% + ' + (y * rect.height * .38) + 'px))';
-        setKey('a', x < -.22); setKey('d', x > .22); setKey('w', y < -.22); setKey('s', y > .22);
-      }
-      function resetMove(event) {
-        if (pointerId !== null && event && event.pointerId !== pointerId) return;
-        pointerId = null; stick.style.transform = 'translate(-50%, -50%)'; ['a','d','w','s'].forEach(function (key) { setKey(key, false); });
-      }
-      pad.addEventListener('pointerdown', function (event) { event.preventDefault(); pointerId = event.pointerId; pad.setPointerCapture && pad.setPointerCapture(pointerId); updateMove(event); });
-      pad.addEventListener('pointermove', function (event) { if (event.pointerId === pointerId) { event.preventDefault(); updateMove(event); } });
-      pad.addEventListener('pointerup', resetMove); pad.addEventListener('pointercancel', resetMove); pad.addEventListener('lostpointercapture', resetMove);
-      window.addEventListener('blur', function () { pressed.forEach(function (key) { keyEvent('keyup', key); }); pressed.clear(); resetMove({ pointerId: null }); });
-    })();
+    window.addEventListener('beforeunload', function () { if (typeof FS !== 'undefined' && FS.syncfs) FS.syncfs(true, function () {}); });
+    window.setInterval(updateMobileShell, 250);
   </script>
   <script src="MinecraftPE.js"></script>
 </body>

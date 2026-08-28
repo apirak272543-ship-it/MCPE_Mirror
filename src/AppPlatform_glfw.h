@@ -106,7 +106,7 @@ public:
 		return std::string(mbstr);
 	}
 
-	virtual int getScreenWidth() override { 
+	virtual int getScreenWidth() override {
 		#ifdef __EMSCRIPTEN__
 			int w, h;
 			emscripten_get_canvas_element_size("canvas", &w, &h);
@@ -114,10 +114,10 @@ public:
 			return w;
 		#endif
 
-		return 854; 
+		return 854;
 	};
 
-	virtual int getScreenHeight() override { 
+	virtual int getScreenHeight() override {
 		#ifdef __EMSCRIPTEN__
 			int w, h;
 			emscripten_get_canvas_element_size("canvas", &w, &h);
@@ -125,14 +125,20 @@ public:
 			return h;
 		#endif
 
-		return 480; 
+		return 480;
 	};
 
 	virtual float getPixelsPerMillimeter() override;
 
-	virtual bool supportsTouchscreen() override { return false; /* glfw supports only mouse and keyboard */ }
+	virtual bool supportsTouchscreen() override {
+#if defined(__EMSCRIPTEN__)
+		return true; // Web GLFW receives browser pointer/touch events; use MCPE's native touch HUD.
+#else
+		return false; // Desktop GLFW uses mouse and keyboard.
+#endif
+		}
 
-	virtual void hideCursor(bool hide) override {
+		virtual void hideCursor(bool hide) override {
 		int isHide = hide ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN;
 		glfwSetInputMode(window, GLFW_CURSOR, isHide);
 	}

@@ -117,7 +117,11 @@ void error_callback(int error, const char* desc) {
 void loop() {
 	using clock = std::chrono::steady_clock;
 	auto frameStart = clock::now();
-
+#ifdef __EMSCRIPTEN__
+	// The mobile overlay belongs to the in-world HUD only, never to username/menu screens.
+	NinecraftApp* runtimeApp = static_cast<NinecraftApp*>(g_app);
+	EM_ASM({ window.__mcpeGameplay = $0 === 1; }, (runtimeApp && runtimeApp->level != NULL && runtimeApp->screen == NULL) ? 1 : 0);
+#endif
 	g_app->update();
 
 	glfwSwapBuffers(((AppPlatform_glfw*)g_app->platform())->window);
