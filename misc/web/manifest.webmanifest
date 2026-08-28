@@ -1,0 +1,11 @@
+{
+  "name": "โลกของเรา",
+  "short_name": "โลกของเรา",
+  "lang": "th",
+  "start_url": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#080808",
+  "theme_color": "#080808",
+  "description": "เกมผจญภัยออนไลน์บนโลกแฟนตาซี ไซไฟ และโลกปัจจุบัน"
+}

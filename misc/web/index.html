@@ -1,10 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="th">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#080808">
-  <title>MCPE 0.6.1</title>
+  <title>โลกของเรา</title>
+  <link rel="manifest" href="manifest.webmanifest">
   <style>
     :root { color-scheme: dark; }
     * { box-sizing: border-box; }
@@ -20,6 +21,7 @@
   <canvas id="canvas" tabindex="0"></canvas>
   <div id="orientation-gate" aria-live="polite"><span>กรุณาหมุนโทรศัพท์เป็นแนวนอนเพื่อเล่นเกม</span></div>
   <script>
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(function (error) { console.warn('Offline cache unavailable', error); });
     var Module = {
       canvas: document.getElementById('canvas'),
       onRuntimeInitialized: function () { resizeCanvas(); Module.canvas.focus(); }

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "inventory_scope": "shared-account",
+  "items": [
+    {"id":"ember-shard","name":"เศษแก่นเถ้าดำ","category":"วัตถุดิบ","rarity":"หายาก","count":12,"access":"ใช้ได้ทุกโลก","worlds":["*"]},
+    {"id":"sky-seed","name":"เมล็ดพันธุ์ฟากฟ้า","category":"เมล็ดพันธุ์","rarity":"พิเศษ","count":4,"access":"ใช้ได้ในโลกที่ปลูกพืชได้","worlds":["homeworld","verdant-labyrinth","glass-desert"]},
+    {"id":"aether-compass","name":"เข็มทิศเอเธอร์","category":"อุปกรณ์","rarity":"มหากาพย์","count":1,"access":"ใช้เปิดทางเชื่อมโลก","worlds":["homeworld","ashen-gate","sky-sanctuary","neon-harbor"]},
+    {"id":"rustglass","name":"แก้วสนิม","category":"วัตถุดิบ","rarity":"ทั่วไป","count":28,"access":"ใช้ได้ทุกโลก","worlds":["*"]},
+    {"id":"tide-ink","name":"หมึกกระแสน้ำ","category":"วัตถุดิบ","rarity":"หายาก","count":6,"access":"ใช้สร้างแผนที่ใต้น้ำ","worlds":["homeworld","drowned-archive"]},
+    {"id":"worldheart-key","name":"กุญแจหัวใจโลก","category":"เนื้อเรื่อง","rarity":"ตำนาน","count":0,"access":"จะได้รับเมื่อผ่านเส้นเรื่องหลัก","worlds":["worldheart"]}
+  ]
+}

@@ -47,6 +47,9 @@ jobs:
           mkdir -p _site/studio
           cp studio/index.html studio/app.js studio/styles.css _site/studio/
           cp studio/README.md _site/studio/README.md
+          mkdir -p _site/lobby _site/content
+          cp lobby/index.html lobby/app.js lobby/styles.css _site/lobby/
+          cp content/worlds.json content/items.json _site/content/
           if [[ -f build/MinecraftPE.data ]]; then cp build/MinecraftPE.data _site/MinecraftPE.data; fi
           if [[ -f build/MinecraftPE.worker.js ]]; then cp build/MinecraftPE.worker.js _site/MinecraftPE.worker.js; fi
           test -s _site/index.html
