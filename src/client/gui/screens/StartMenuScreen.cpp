@@ -1,7 +1,7 @@
 #include "StartMenuScreen.h"
 #include "UsernameScreen.h"
 #include "SelectWorldScreen.h"
-#include "../ProgressScreen.h"
+#include "ProgressScreen.h"
 #include "../../player/LocalPlayer.h"
 #include "../../renderer/entity/EntityRenderDispatcher.h"
 
