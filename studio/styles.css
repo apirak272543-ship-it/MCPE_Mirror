@@ -12,6 +12,8 @@ a, button { border: 1px solid var(--line); border-radius: 8px; padding: 9px 13px
 button:hover, a:hover { border-color: var(--accent); }
 .primary { border-color: #4f9d5c; background: #276138; }
 .secondary { width: 100%; margin: 8px 0 22px; }
+nav .secondary { width: auto; margin: 0; }
+#image-preview[hidden] { display: none; }
 .layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); min-height: calc(100vh - 68px); }
 .sidebar { padding: 18px; border-right: 1px solid var(--line); background: #101d2a; }
 h1, h2 { margin: 0 0 10px; }
