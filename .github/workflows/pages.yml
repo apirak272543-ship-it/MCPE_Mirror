@@ -44,6 +44,7 @@ jobs:
           cp build/index.html _site/index.html
           cp build/MinecraftPE.js _site/MinecraftPE.js
           cp build/MinecraftPE.wasm _site/MinecraftPE.wasm
+          cp misc/web/manifest.webmanifest misc/web/sw.js _site/
           mkdir -p _site/studio
           cp studio/index.html studio/app.js studio/styles.css _site/studio/
           cp studio/README.md _site/studio/README.md

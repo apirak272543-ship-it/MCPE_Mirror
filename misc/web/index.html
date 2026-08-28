@@ -37,7 +37,8 @@
       font: 700 18px/1.45 system-ui, sans-serif;
     }
     #orientation-gate span { display: block; max-width: 360px; }
-    @media (orientation: portrait) and (pointer: coarse) { #orientation-gate.show { display: grid; } }
+    /* Apply before WebAssembly starts, so the loading screen is never shown in portrait. */
+    @media (orientation: portrait) and (pointer: coarse) { #orientation-gate, #orientation-gate.show { display: grid; } }
   </style>
 </head>
 <body>
