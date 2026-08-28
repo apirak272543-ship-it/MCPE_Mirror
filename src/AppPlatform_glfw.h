@@ -153,11 +153,11 @@ public:
 
 #ifdef __EMSCRIPTEN__
 		virtual void showKeyboard() override {
-			super::showKeyboard();
+			AppPlatform::showKeyboard();
 			emscripten_run_script("(function(){var i=document.getElementById('__as_keyboard');if(!i){i=document.createElement('input');i.id='__as_keyboard';i.type='text';i.inputMode='text';i.autocomplete='off';i.autocorrect='off';i.spellcheck=false;i.setAttribute('aria-hidden','true');i.style.position='fixed';i.style.left='0';i.style.bottom='0';i.style.width='2px';i.style.height='2px';i.style.opacity='0.01';i.style.zIndex='-1';document.body.appendChild(i);}i.focus({preventScroll:true});})();");
 		}
 		virtual void hideKeyboard() override {
-			super::hideKeyboard();
+			AppPlatform::hideKeyboard();
 			emscripten_run_script("(function(){var i=document.getElementById('__as_keyboard');if(i)i.blur();})();");
 		}
 #endif
