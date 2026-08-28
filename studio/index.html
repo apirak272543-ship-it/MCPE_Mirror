@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#0d1721">
+  <title>MCPE Studio — เครื่องมือทำโลกและส่วนเสริม</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div><strong>MCPE Studio</strong><span class="subtitle">เครื่องมือทำโลกและส่วนเสริมสำหรับเกม</span></div>
+    <nav><a href="../">ไปหน้าเล่นเกม</a><button id="choose-folder" class="primary">เลือกโฟลเดอร์งาน</button></nav>
+  </header>
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>งานของฉัน</h2>
+      <p id="folder-status" class="muted">เลือกโฟลเดอร์ที่เก็บไฟล์เกมของคุณ</p>
+      <button id="new-project" class="secondary">สร้างโครงไฟล์สำหรับเริ่มทำงาน</button>
+      <h2>ไฟล์ที่อยู่ในงาน</h2>
+      <div id="file-list" class="file-list"><p class="muted">เมื่อเลือกโฟลเดอร์แล้ว ไฟล์ที่แก้ไขได้จะแสดงตรงนี้</p></div>
+    </aside>
+    <section class="editor-area">
+      <div class="editor-head"><div><h1 id="file-title">เริ่มต้นสร้างงาน</h1><p id="file-path" class="muted">ไฟล์ที่คุณสร้างหรือแก้ไขจะบันทึกลงในโฟลเดอร์ที่เลือก</p></div><button id="save-file" class="primary" disabled>บันทึกการแก้ไข</button></div>
+      <div id="welcome" class="welcome"><h2>เริ่มทำโลกและส่วนเสริมของคุณ</h2><p>เลือกโฟลเดอร์งานในเครื่อง แล้วเปิดไฟล์ที่ต้องการแก้ไขได้ทันที เมื่อกดบันทึก การเปลี่ยนแปลงจะลงไฟล์ในเครื่องของคุณโดยตรง ไม่ถูกส่งขึ้นเซิร์ฟเวอร์</p><div class="cards"><div><b>เริ่มงานได้เร็ว</b><span>สร้างไฟล์ตั้งต้นสำหรับโลกและส่วนเสริม</span></div><div><b>แก้ไขอย่างมั่นใจ</b><span>ตรวจรูปแบบ JSON ให้ก่อนบันทึก</span></div><div><b>ทดสอบในเกม</b><span>กลับไปหน้าเล่นเกมเพื่อตรวจผลงาน</span></div></div></div>
+      <textarea id="editor" spellcheck="false" hidden></textarea>
+      <div id="status" class="status" role="status"></div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

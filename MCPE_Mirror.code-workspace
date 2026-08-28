@@ -1,0 +1,10 @@
+{
+  "folders": [
+    { "name": "เกม MCPE", "path": "." },
+    { "name": "AddonCrate Studio", "path": "tools/addoncrate-studio" },
+    { "name": "ไฟล์โปรเจกต์และโลก", "path": "projects" }
+  ],
+  "settings": {
+    "addoncrate.projects.location": "${workspaceFolder:เกม MCPE}/projects/addons"
+  }
+}
