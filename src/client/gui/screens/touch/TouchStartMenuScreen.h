@@ -13,18 +13,19 @@ class StartMenuScreen: public Screen
 public:
 	StartMenuScreen();
 	virtual ~StartMenuScreen();
-	
+
 	void init();
 	void setupPositions();
 
-	void render(int xm, int ym, float a);
+		void render(int xm, int ym, float a);
+		void renderCharacterPreview(float x, float y, float scale);
 
 	void buttonClicked(Button* button);
 	virtual void mouseClicked(int x, int y, int buttonNum);
 	bool handleBackEvent(bool isDown);
 	bool isInGameScreen();
 private:
-	
+
 	LargeImageButton bHost;
 	LargeImageButton bJoin;
 	LargeImageButton bOptions;

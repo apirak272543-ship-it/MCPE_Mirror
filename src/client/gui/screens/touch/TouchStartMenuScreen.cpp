@@ -1,5 +1,8 @@
 #include "TouchStartMenuScreen.h"
 #include "../ProgressScreen.h"
+#include "../../../player/LocalPlayer.h"
+#include "../../../renderer/entity/EntityRenderDispatcher.h"
+
 #include "../OptionsScreen.h"
 #include "../PauseScreen.h"
 
@@ -21,15 +24,15 @@
 
 namespace Touch {
 
-// 
+//
 // Start menu screen implementation
 //
 
 // Some kind of default settings, might be overridden in ::init
 StartMenuScreen::StartMenuScreen()
-:	bHost(    2, "Start Game"),
-	bJoin(    3, "Join Game"),
-	bOptions( 4, "Options"),
+:	bHost(    2, "เข้าสู่การผจญภัย"),
+	bJoin(    3, "เล่นกับผู้คน"),
+	bOptions( 4, "ตั้งค่าเกม"),
 	bQuit(    5, "")
 {
 	ImageDef def;
@@ -80,7 +83,7 @@ void StartMenuScreen::init()
 		tabButtons.push_back(&bBuy);
 	#endif
 
-	copyright = "\xffMojang AB";//. Do not distribute!";
+	copyright = "A Survival";
 
 	// always show base version string
 	std::string versionString = Common::getGameVersionString();
@@ -88,7 +91,7 @@ void StartMenuScreen::init()
 	std::string _username = minecraft->options.getStringValue(OPTIONS_USERNAME);
 	if (_username.empty()) _username = "unknown";
 
-	username = "Username: " + _username;
+	username = "นักผจญภัย: " + _username;
 
 	#ifdef DEMO_MODE
         #ifdef __APPLE__
@@ -99,7 +102,7 @@ void StartMenuScreen::init()
 	#else
 		version = versionString;
 	#endif
-    
+
     #ifdef APPLE_DEMO_PROMOTION
         version = versionString + " (Demo)";
     #endif
@@ -122,7 +125,7 @@ void StartMenuScreen::setupPositions() {
 	bJoin.x		= 0*buttonWidth + (int)(1*spacing);
 	bHost.x		= 1*buttonWidth + (int)(2*spacing);
 	bOptions.x	= 2*buttonWidth + (int)(3*spacing);
-    
+
 	// quit icon top-right (use size assigned in init)
 	bQuit.x = width - bQuit.width;
 	bQuit.y = 0;
@@ -162,63 +165,73 @@ void StartMenuScreen::buttonClicked(::Button* button) {
 
 bool StartMenuScreen::isInGameScreen() { return false; }
 
+void StartMenuScreen::renderCharacterPreview(float x0, float y0, float scale)
+{
+	if (!minecraft || !minecraft->player)
+		return;
+
+	glPushMatrix();
+	glTranslatef(x0, y0, -200);
+	glScalef(-scale, scale, scale);
+	glRotatef(180, 0, 0, 1);
+
+	Player* player = (Player*)minecraft->player;
+	float oldBodyRot = player->yBodyRot;
+	float oldRot = player->yRot;
+	float oldPitch = player->xRot;
+	float oldWalkPos = player->walkAnimPos;
+	float oldWalkSpeed = player->walkAnimSpeed;
+	float oldWalkSpeedO = player->walkAnimSpeedO;
+	float t = getTimeS();
+	player->yBodyRot = 8.0f * Mth::sin(t * 0.7f);
+	player->yRot = player->yBodyRot * 2.0f;
+	player->xRot = -2.0f;
+	player->walkAnimSpeedO = player->walkAnimSpeed = 0.12f;
+	player->walkAnimPos = t * player->walkAnimSpeed * SharedConstants::TicksPerSecond;
+
+	EntityRenderDispatcher* dispatcher = EntityRenderDispatcher::getInstance();
+	dispatcher->playerRotY = 180;
+	dispatcher->render(player, 0, 0, 0, 0, 1);
+
+	player->yBodyRot = oldBodyRot;
+	player->yRot = oldRot;
+	player->xRot = oldPitch;
+	player->walkAnimPos = oldWalkPos;
+	player->walkAnimSpeed = oldWalkSpeed;
+	player->walkAnimSpeedO = oldWalkSpeedO;
+	glPopMatrix();
+}
+
 void StartMenuScreen::render( int xm, int ym, float a )
 {
 	renderBackground();
 
-	// Show current username in the top-left corner
-	drawString(font, username, 2, 2, 0xffffffff);
-    
-    glEnable2(GL_BLEND);
+		// Character-first lobby. The live entity supplies its existing skin, armor and held item.
+	fill(0, 0, width, height, 0xff10182a);
+	fill(0, 0, width, 26, 0xff182744);
+	drawString(font, "A SURVIVAL", 12, 7, 0xffffd36a);
+	drawString(font, username, width - font->width(username) - 12, 7, 0xffd9e6ff);
 
-#if defined(RPI)
-	TextureId id = minecraft->textures->loadTexture("gui/pi_title.png");
-#else
-	TextureId id = minecraft->textures->loadTexture("gui/title.png");
-#endif
-	const TextureData* data = minecraft->textures->getTemporaryTextureData(id);
+	const int panelLeft = width / 2 - 132;
+	const int panelRight = width / 2 + 132;
+	fill(panelLeft, 34, panelRight, height - 42, 0xff16233b);
+	fill(panelLeft + 3, 37, panelRight - 3, height - 45, 0xff0d1526);
+	drawString(font, "ตัวละครของคุณ", panelLeft + 12, 49, 0xffffffff);
+	drawString(font, "ชุดและไอเทมจะติดตัวไปทุกโลก", panelLeft + 12, 62, 0xff9fb6d9);
+	if (minecraft->player)
+		renderCharacterPreview((float)width / 2.0f, (float)height * 0.72f, 48.0f);
+	else
+		drawString(font, "กำลังเตรียมตัวละคร...", width / 2 - 52, height / 2, 0xff9fb6d9);
 
-	if (data) {
-		minecraft->textures->bind(id);
-
-		const float x = (float)width / 2;
-		const float y = 4;
-		const float wh = 0.5f * Mth::Min((float)width/2.0f, (float)data->w / 2);
-		const float scale = 2.0f * wh / (float)data->w;
-		const float h = scale * (float)data->h;
-
-		// Render title text
-		Tesselator& t = Tesselator::instance;
-		glColor4f2(1, 1, 1, 1);
-		t.begin();
-			t.vertexUV(x-wh, y+h, blitOffset, 0, 1);
-			t.vertexUV(x+wh, y+h, blitOffset, 1, 1);
-			t.vertexUV(x+wh, y+0, blitOffset, 1, 0);
-			t.vertexUV(x-wh, y+0, blitOffset, 0, 0);
-		t.draw();
-
-		drawString(font, version, versionPosX, (int)(y+h)+2, /*50,*/ 0xffcccccc);//0x666666);
-		drawString(font, copyright, copyrightPosX, height - 10, 0xffffff);
-		glColor4f2(1, 1, 1, 1);
-		if (Textures::isTextureIdValid(minecraft->textures->loadAndBindTexture("gui/logo/github.png")))
-			blit(2, height - 10, 0, 0, 8, 8, 256, 256);
-		drawString(font, "Kolyah35/minecraft-pe-0.6.1", 12, height - 10, 0xffcccccc);
-		//patch->draw(t, 0, 20);
-	}
+	drawString(font, "แผนที่และเรื่องราว", 12, height - 30, 0xffffd36a);
+	drawString(font, version, width - font->width(version) - 12, height - 30, 0xff8fa5c4);
 	Screen::render(xm, ym, a);
-    glDisable2(GL_BLEND);
+
 }
 
 
 void StartMenuScreen::mouseClicked(int x, int y, int buttonNum) {
-	const int logoX = 2;
-	const int logoW = 8 + 2 + font->width("Kolyah35/minecraft-pe-0.6.1");
-	const int logoY = height - 10;
-	const int logoH = 10;
-	if (x >= logoX && x <= logoX + logoW && y >= logoY && y <= logoY + logoH)
-		minecraft->platform()->openURL("https://gitea.sffempire.ru/Kolyah35/minecraft-pe-0.6.1");
-	else
-		Screen::mouseClicked(x, y, buttonNum);
+	Screen::mouseClicked(x, y, buttonNum);
 }
 
 bool StartMenuScreen::handleBackEvent( bool isDown ) {

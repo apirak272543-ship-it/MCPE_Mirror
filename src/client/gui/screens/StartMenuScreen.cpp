@@ -1,7 +1,10 @@
 #include "StartMenuScreen.h"
 #include "UsernameScreen.h"
 #include "SelectWorldScreen.h"
-#include "ProgressScreen.h"
+#include "../ProgressScreen.h"
+#include "../../player/LocalPlayer.h"
+#include "../../renderer/entity/EntityRenderDispatcher.h"
+
 #include "JoinGameScreen.h"
 #include "OptionsScreen.h"
 #include "PauseScreen.h"
@@ -37,15 +40,15 @@ StartMenuScreen::~StartMenuScreen()
 void StartMenuScreen::init()
 {
 	if (minecraft->options.getIntValue(OPTIONS_MENU_STYLE) == 2){
-		bHost = new Button(    2, 0, 0, 200, 20, "Singleplayer");
-		bJoin = new Button(    3, 0, 0, 200, 20, "Multiplayer");
-		bOptions = new Button( 4, 0, 0, 200, 20, "Options...");
-		bQuit = new Button( 5, 0, 0, 200, 20, "Ouit Game");
+bHost = new Button(    2, 0, 0, 200, 20, "เข้าสู่การผจญภัย");
+			bJoin = new Button(    3, 0, 0, 200, 20, "เล่นกับผู้คน");
+			bOptions = new Button( 4, 0, 0, 200, 20, "ตั้งค่าเกม");
+			bQuit = new Button( 5, 0, 0, 200, 20, "ออกจากเกม");
 	} else {
-		bHost = new Button(    2, 0, 0, 160, 24, "Start Game");
-		bJoin = new Button(    3, 0, 0, 160, 24, "Join Game");
-		bOptions = new Button( 4, 0, 0, 160, 24, "Options");
-		bQuit = new Button( 5, 0, 0, 160, 24, "Ouit Game");
+bHost = new Button(    2, 0, 0, 160, 24, "เข้าสู่การผจญภัย");
+			bJoin = new Button(    3, 0, 0, 160, 24, "เล่นกับผู้คน");
+			bOptions = new Button( 4, 0, 0, 160, 24, "ตั้งค่าเกม");
+			bQuit = new Button( 5, 0, 0, 160, 24, "ออกจากเกม");
 	}
 	bJoin->active = bHost->active = bOptions->active = true;
 
@@ -80,7 +83,7 @@ void StartMenuScreen::init()
     //    // don't include in tab navigation
     //}
 
-	copyright = "\xffMojang AB";//. Do not distribute!";
+	copyright = "A Survival";
 
 	// always show base version string, suffix was previously added for Android builds
 	std::string versionString = Common::getGameVersionString();
@@ -88,7 +91,7 @@ void StartMenuScreen::init()
 	std::string _username = minecraft->options.getStringValue(OPTIONS_USERNAME);
 	if (_username.empty()) _username = "unknown";
 
-	username = "Username: " + _username;
+	username = "นักผจญภัย: " + _username;
 
 	#ifdef DEMO_MODE
 	#ifdef __APPLE__
@@ -162,75 +165,74 @@ void StartMenuScreen::buttonClicked(Button* button) {
 
 bool StartMenuScreen::isInGameScreen() { return false; }
 
+void StartMenuScreen::renderCharacterPreview(float x0, float y0, float scale)
+{
+	if (!minecraft || !minecraft->player)
+		return;
+
+	glPushMatrix();
+	glTranslatef(x0, y0, -200);
+	glScalef(-scale, scale, scale);
+	glRotatef(180, 0, 0, 1);
+
+	Player* player = (Player*)minecraft->player;
+	float oldBodyRot = player->yBodyRot;
+	float oldRot = player->yRot;
+	float oldPitch = player->xRot;
+	float oldWalkPos = player->walkAnimPos;
+	float oldWalkSpeed = player->walkAnimSpeed;
+	float oldWalkSpeedO = player->walkAnimSpeedO;
+
+	float t = getTimeS();
+	player->yBodyRot = 8.0f * Mth::sin(t * 0.7f);
+	player->yRot = player->yBodyRot * 2.0f;
+	player->xRot = -2.0f;
+	player->walkAnimSpeedO = player->walkAnimSpeed = 0.12f;
+	player->walkAnimPos = t * player->walkAnimSpeed * SharedConstants::TicksPerSecond;
+
+	EntityRenderDispatcher* dispatcher = EntityRenderDispatcher::getInstance();
+	dispatcher->playerRotY = 180;
+	dispatcher->render(player, 0, 0, 0, 0, 1);
+
+	player->yBodyRot = oldBodyRot;
+	player->yRot = oldRot;
+	player->xRot = oldPitch;
+	player->walkAnimPos = oldWalkPos;
+	player->walkAnimSpeed = oldWalkSpeed;
+	player->walkAnimSpeedO = oldWalkSpeedO;
+	glPopMatrix();
+}
+
 void StartMenuScreen::render( int xm, int ym, float a )
 {
 	renderBackground();
 
-	// Show current username in the top-left corner
-	drawString(font, username, 2, 2, 0xffffffff);
+		// Character-first lobby: the live player entity supplies skin, armor and held item.
+	fill(0, 0, width, height, 0xff10182a);
+	fill(0, 0, width, 24, 0xff182744);
+	drawString(font, "A SURVIVAL", 12, 6, 0xffffd36a);
+	drawString(font, username, width - font->width(username) - 12, 6, 0xffd9e6ff);
 
-#if defined(RPI)
-	TextureId id = minecraft->textures->loadTexture("gui/pi_title.png");
-#else
-	TextureId id = minecraft->textures->loadTexture("gui/title.png");
-#endif
-	const TextureData* data = minecraft->textures->getTemporaryTextureData(id);
+	const int panelLeft = width / 2 - 118;
+	const int panelRight = width / 2 + 118;
+	fill(panelLeft, 32, panelRight, height - 34, 0xff16233b);
+	fill(panelLeft + 3, 35, panelRight - 3, height - 37, 0xff0d1526);
+	drawString(font, "ตัวละครของคุณ", panelLeft + 12, 46, 0xffffffff);
+	drawString(font, "อุปกรณ์ปัจจุบันจะติดตัวไปทุกโลก", panelLeft + 12, 58, 0xff9fb6d9);
+	if (minecraft->player)
+		renderCharacterPreview((float)width / 2.0f, (float)height * 0.72f, 45.0f);
+	else
+		drawString(font, "กำลังเตรียมตัวละคร...", width / 2 - 48, height / 2, 0xff9fb6d9);
 
-	if (data) {
-		minecraft->textures->bind(id);
+	drawString(font, "แผนที่และเรื่องราว", 12, height - 27, 0xffffd36a);
+	drawString(font, version, width - font->width(version) - 12, height - 27, 0xff8fa5c4);
 
-		const float x = (float)width / 2;
-		const float y = height/16;
-		//const float scale = Mth::Min(
-		const float wh = Mth::Min((float)width/2.0f, (float)data->w / 2);
-		const float scale = 2.0f * wh / (float)data->w;
-		const float h = scale * (float)data->h;
-
-		// Render title text
-		Tesselator& t = Tesselator::instance;
-		glColor4f2(1, 1, 1, 1);
-		t.begin();
-		t.vertexUV(x-wh, y+h, blitOffset, 0, 1);
-		t.vertexUV(x+wh, y+h, blitOffset, 1, 1);
-		t.vertexUV(x+wh, y+0, blitOffset, 1, 0);
-		t.vertexUV(x-wh, y+0, blitOffset, 0, 0);
-		t.draw();
-	}
-
-#if defined(RPI)
-	if (Textures::isTextureIdValid(minecraft->textures->loadAndBindTexture("gui/logo/raknet_high_72.png")))
-		blit(0, height - 12, 0, 0, 43, 12, 256, 72+72);
-#endif
-
-	drawString(font, version, width - font->width(version) - 2, height - 10, 0xffcccccc);//0x666666);
-	drawString(font, copyright, 2, height - 20, 0xffffff);
-	glEnable2(GL_BLEND);
-	glBlendFunc2(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glColor4f2(1, 1, 1, 1);
-	if (Textures::isTextureIdValid(minecraft->textures->loadAndBindTexture("gui/logo/github.png")))
-		blit(2, height - 10, 0, 0, 8, 8, 256, 256);
-	{
-			std::string txt = "Kolyah35/minecraft-pe-0.6.1";
-			float wtxt = font->width(txt);
-			Gui::drawColoredString(font, txt, 12, height - 10, 255);
-			// underline link
-			float y0 = height - 10 + font->lineHeight - 1;
-			this->fill(12, (int)y0, 12 + (int)wtxt, (int)(y0 + 1), 0xffffffff);
-    }
-
-	
 	Screen::render(xm, ym, a);
+
 }
 
 void StartMenuScreen::mouseClicked(int x, int y, int buttonNum) {
-	const int logoX = 2;
-	const int logoW = 8 + 2 + font->width("Kolyah35/minecraft-pe-0.6.1");
-	const int logoY = height - 10;
-	const int logoH = 10;
-	if (x >= logoX && x <= logoX + logoW && y >= logoY && y <= logoY + logoH)
-		minecraft->platform()->openURL("https://gitea.sffempire.ru/Kolyah35/minecraft-pe-0.6.1");
-	else
-		Screen::mouseClicked(x, y, buttonNum);
+	Screen::mouseClicked(x, y, buttonNum);
 }
 
 bool StartMenuScreen::handleBackEvent( bool isDown ) {
