@@ -7,7 +7,7 @@ button { cursor: pointer; }
 .topbar { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 12px 20px; border-bottom: 1px solid var(--line); background: #0a121a; }
 .topbar strong { display: block; font-size: 20px; }
 .subtitle { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; }
-nav { display: flex; align-items: center; gap: 10px; }
+nav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 a, button { border: 1px solid var(--line); border-radius: 8px; padding: 9px 13px; color: var(--text); background: var(--panel-2); text-decoration: none; }
 button:hover, a:hover { border-color: var(--accent); }
 .primary { border-color: #4f9d5c; background: #276138; }
@@ -30,7 +30,8 @@ h2 { font-size: 14px; color: #d8e8f4; }
 .cards span { color: var(--muted); font-size: 12px; line-height: 1.45; }
 #editor { flex: 1; min-height: 520px; width: 100%; resize: vertical; padding: 18px; border: 1px solid var(--line); border-radius: 12px; outline: none; background: #081019; color: #dff5e4; font: 14px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; }
 #editor:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(99,193,116,.15); }
+#image-preview { display: block; max-width: min(100%, 720px); max-height: 62vh; margin: 6px auto; image-rendering: pixelated; border: 1px solid var(--line); border-radius: 12px; background: #111; }
 .status { min-height: 24px; padding-top: 10px; color: var(--muted); font-size: 13px; }
 .status.success { color: var(--accent); }
 .status.error { color: var(--danger); }
-@media (max-width: 720px) { .topbar { align-items: flex-start; flex-direction: column; } nav { width: 100%; } nav button, nav a { flex: 1; text-align: center; } .layout { display: block; } .sidebar { border-right: 0; border-bottom: 1px solid var(--line); } .editor-area { padding: 16px; } .cards { grid-template-columns: 1fr; } .editor-head { flex-direction: column; } #save-file { width: 100%; } }
+@media (max-width: 720px) { .topbar { align-items: flex-start; flex-direction: column; } nav { width: 100%; } nav button, nav a { flex: 1; min-width: 0; text-align: center; } .layout { display: block; } .sidebar { border-right: 0; border-bottom: 1px solid var(--line); } .editor-area { padding: 16px; } .cards { grid-template-columns: 1fr; } .editor-head { flex-direction: column; } #save-file { width: 100%; } }

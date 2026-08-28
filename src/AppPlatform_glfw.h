@@ -75,6 +75,14 @@ public:
 
 		std::string filename = textureFolder? "data/images/" + filename_
 								: filename_;
+#ifdef __EMSCRIPTEN__
+		// Developer content overrides are loaded before bundled assets. Studio writes to this path.
+		if (textureFolder) {
+			std::string overrideFilename = "content/images/" + filename_;
+			std::ifstream overrideFile(overrideFilename.c_str(), std::ios::binary);
+			if (overrideFile.good()) filename = overrideFilename;
+		}
+#endif
 		std::ifstream source(filename.c_str(), std::ios::binary);
 
 		if (!source) {
