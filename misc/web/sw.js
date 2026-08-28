@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mcpe-original-shell-v1';
+const CACHE_NAME = 'mcpe-original-shell-v2-landscape';
 const BASE = new URL('./', self.location).pathname;
 const CORE = [
   './',
